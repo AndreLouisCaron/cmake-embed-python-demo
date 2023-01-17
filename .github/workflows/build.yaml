@@ -1,0 +1,52 @@
+name: build
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-windows-2019-vs-2019:
+    name: Build on Windows 2019 (Visual Studio 2019)
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v3
+      - shell: python
+        run: |
+          import os
+          import subprocess
+          os.mkdir("build")
+          os.chdir("build")
+          subprocess.check_call([
+            "cmake", "-G", "Visual Studio 16 2019", "..",
+          ])
+          subprocess.check_call([
+            "cmake", "--build", ".",
+            "--target", "ALL_BUILD",
+            "--config", "Release",
+          ])
+          subprocess.check_call([
+            "ctest", "--build-config", "Release",
+          ])
+
+  build-ubuntu-2204:
+    name: Build on Ubuntu 22.04
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - shell: python
+        run: |
+          import os
+          import subprocess
+          os.mkdir("build")
+          os.chdir("build")
+          subprocess.check_call([
+            "cmake", "-G", "Unix Makefiles",
+            "-DCMAKE_BUILD_TYPE=Release", "..",
+          ])
+          subprocess.check_call([
+            "cmake", "--build", ".",
+          ])
+          subprocess.check_call([
+            "ctest",
+          ])
